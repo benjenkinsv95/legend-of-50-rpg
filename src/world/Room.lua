@@ -158,7 +158,12 @@ function Room:update(dt)
 
         -- remove entity from the table if health is <= 0
         if entity.health <= 0 then
+            -- if the entity is going to die
+            if not entity.dead then
+                self:generateHeartsAround(entity)
+            end
             entity.dead = true
+            
         elseif not entity.dead then
             entity:processAI({room = self}, dt)
             entity:update(dt)
@@ -185,6 +190,54 @@ function Room:update(dt)
         end
     end
 end
+
+function Room:generateHeartXAround(entity)
+    local MIN_HEART_X = MAP_RENDER_OFFSET_X + TILE_SIZE
+    local MAX_HEART_X = VIRTUAL_WIDTH - TILE_SIZE * 2 - 16
+    local x = entity.x + math.random(-TILE_SIZE, TILE_SIZE)
+    return clamp(x, MIN_HEART_X, MAX_HEART_X)
+end
+
+function Room:generateHeartYAround(entity)
+    local MIN_HEART_Y = MAP_RENDER_OFFSET_Y + TILE_SIZE
+    local MAX_HEART_Y = VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16
+    local y = entity.y + math.random(-TILE_SIZE, TILE_SIZE)
+    return clamp(y, MIN_HEART_Y, MAX_HEART_Y)
+end
+
+function Room:generateHeartsAround(entity)
+    print("Deadddddd")
+
+
+    -- Generate up to 3 hearts
+     for i = 1, 3 do
+        -- A 16% chance for each heart
+        if math.random(1, 6) == 1 then 
+            local heart = GameObject(
+                GAME_OBJECT_DEFS['heart'],
+                self:generateHeartXAround(entity),
+                self:generateHeartYAround(entity)
+            )
+
+            -- Keep generating x && y pairs until the heart doesnt collide with the player
+            -- FIXME: We can still generate a heart that is instantly collided with... 
+            -- 1. I'm not sure if there is a bug with the `collides`
+            -- 2. Or possibly we need to check which direction the player is walking in
+            while self.player:collides(entity) do
+                entity.x = self:generateHeartXAround(entity)
+                entity.y = self:generateHeartYAround(entity)
+            end
+    
+            heart.onCollide = function()
+                gSounds['pickup']:play()
+                self.player:setHealth(self.player.health + 2)
+                removeFromTable(self.objects, heart)
+            end
+            
+            table.insert(self.objects, heart)
+        end
+    end
+end 
 
 function Room:render()
     for y = 1, self.height do

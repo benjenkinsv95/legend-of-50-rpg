@@ -69,3 +69,31 @@ function print_r ( t )
     end
     print()
 end
+
+
+-- Get index from table function heavily based on:
+-- https://stackoverflow.com/a/52922737
+local function getIndex(tab, value)
+    local index = nil
+    for i, v in ipairs (tab) do 
+        if (v == value) then
+          index = i 
+        end
+    end
+    return index
+end
+
+-- Remove element from table function heavily based on:
+-- https://stackoverflow.com/a/52922737
+function removeFromTable(tab, value)
+    local idx = getIndex(tab, value)
+    if idx == nil then 
+        print("Key does not exist")
+    else
+        table.remove(tab, idx)
+    end
+end
+
+function clamp(value, min, max)
+    return math.max(min, math.min(max, value))
+end
