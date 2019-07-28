@@ -22,7 +22,29 @@ function EntityWalkState:init(entity, dungeon)
     self.bumped = false
 end
 
+function EntityWalkState:collidedSolidObjects()
+    if self.dungeon == nil then 
+        return {}
+    end
+
+    local collidedObjects = {}
+
+    for k, object in pairs(self.dungeon.currentRoom.objects) do
+        if object.solid and self.entity:collides(object) then
+            table.insert(collidedObjects, object)
+        end
+    end
+    
+    return collidedObjects
+end
+
+
+
 function EntityWalkState:update(dt)
+
+    -- Keep track of location in case we hit a solid object
+    local prevX = self.entity.x
+    local prevY = self.entity.y
     
     -- assume we didn't hit a wall
     self.bumped = false
@@ -58,6 +80,19 @@ function EntityWalkState:update(dt)
         if self.entity.y + self.entity.height >= bottomEdge then
             self.entity.y = bottomEdge - self.entity.height
             self.bumped = true
+        end
+    end
+
+    local collidedSolidObjects = self:collidedSolidObjects()
+    if #collidedSolidObjects > 0 then
+        print('colliding')
+        self.entity.x = prevX
+        self.entity.y = prevY
+        self.bumped = true
+    
+        for k, object in pairs(collidedSolidObjects) do
+            self.entity:changeState('idle')
+            object.onCollide()
         end
     end
 end

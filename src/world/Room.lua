@@ -77,9 +77,9 @@ function Room:generateEntities()
 end
 
 --[[
-    Randomly creates an assortment of obstacles for the player to navigate around.
+    Creates a switch in a random location.
 ]]
-function Room:generateObjects()
+function Room:generateSwitch()
     local switch = GameObject(
         GAME_OBJECT_DEFS['switch'],
         math.random(MAP_RENDER_OFFSET_X + TILE_SIZE,
@@ -105,6 +105,41 @@ function Room:generateObjects()
     -- add to list of objects in scene (only one switch for now)
     table.insert(self.objects, switch)
 end
+
+--[[
+    Randomly creates an assortment of obstacles for the player to navigate around.
+]]
+function Room:generateObjects()
+    self:generateSwitch()
+    self:generatePots()
+end
+
+--[[
+    Create pots in a random location.
+]]
+function Room:generatePots()
+    local randomNumberOfPots = math.random(1, 4)
+    for i = 1, randomNumberOfPots do
+        local pot = GameObject(
+            GAME_OBJECT_DEFS['pot'],
+            math.random(MAP_RENDER_OFFSET_X + TILE_SIZE,
+                        VIRTUAL_WIDTH - TILE_SIZE * 2 - 16),
+            math.random(MAP_RENDER_OFFSET_Y + TILE_SIZE,
+                        VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16)
+        )
+
+        -- TODO: FIXME: Right now I have to walk into a pot while hitting enter
+        -- Change so that I don't have to walk into the pot
+        pot.onCollide = function()
+            
+            
+        end
+
+
+        table.insert(self.objects, pot)
+    end
+end
+
 
 --[[
     Generates the walls and floors of the room, randomizing the various varieties
