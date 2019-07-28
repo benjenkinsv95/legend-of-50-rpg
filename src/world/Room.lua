@@ -128,13 +128,9 @@ function Room:generatePots()
                         VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16)
         )
 
-        -- TODO: FIXME: Right now I have to walk into a pot while hitting enter
-        -- Change so that I don't have to walk into the pot
-        pot.onCollide = function()
-            
-            
+        -- TODO: Can I delete?
+        pot.onCollide = function()   
         end
-
 
         table.insert(self.objects, pot)
     end
@@ -222,6 +218,45 @@ function Room:update(dt)
         -- trigger collision callback on object
         if self.player:collides(object) then
             object:onCollide()
+        end
+    end
+
+    self:removePots()
+end
+
+function Room:removePots()
+    local potsToRemove = {}
+    for k, object in pairs(self.objects) do
+        if object.type == "pot" and object.projectile then
+            local pot = object
+            local collidedEntity = self:collidedEntity(pot)
+
+            if pot:isProjectileTooFar() then
+                print("Travelled too far")
+                table.insert(potsToRemove, pot)
+                gSounds['hit-enemy']:play()
+            elseif not pot:isInBounds() then
+                print("Not in bounds")
+                table.insert(potsToRemove, pot)
+                gSounds['hit-enemy']:play()
+            elseif collidedEntity ~= nil then 
+                print("Collided enemy")
+                collidedEntity:damage(1)
+                table.insert(potsToRemove, pot)
+                gSounds['hit-enemy']:play()
+            end
+        end
+    end
+
+    for k, pot in pairs(potsToRemove) do
+        removeFromTable(self.objects, pot)
+    end
+end
+
+function Room:collidedEntity(obj)
+    for k, e in pairs(self.entities) do
+        if obj ~= e and e:collides(obj) then
+            return e
         end
     end
 end

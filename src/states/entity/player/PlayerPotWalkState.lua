@@ -20,8 +20,10 @@ end
 function PlayerPotWalkState:update(dt)
     self.entity.pot.x = self.entity.x
     self.entity.pot.y = self.entity.y - self.entity.pot.height + 5
-    
-    if love.keyboard.isDown('left') then
+
+    if love.keyboard.wasPressed('return') then
+        throwPot(self.entity)
+    elseif love.keyboard.isDown('left') then
         self.entity.direction = 'left'
         self.entity:changeAnimation('pot-walk-left')
     elseif love.keyboard.isDown('right') then

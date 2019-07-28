@@ -29,8 +29,6 @@ function PlayerPotIdleState:update(dt)
     end
 
     if love.keyboard.wasPressed('return') then
-        -- TODO
-        -- Throw pot
-        self.entity:changeState('idle')
+        throwPot(self.entity)
     end
 end

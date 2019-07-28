@@ -18,10 +18,6 @@ function PlayerPotLiftState:init(player, dungeon)
     self.player.offsetX = 0
 end
 
-function PlayerPotLiftState:enter(params)
-    -- self.player.currentAnimation:refresh()
-end
-
 function PlayerPotLiftState:update(dt)
     -- if we've fully elapsed through one cycle of animation, change back to idle state
     if self.player.currentAnimation.timesPlayed > 0 then
