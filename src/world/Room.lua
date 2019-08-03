@@ -182,26 +182,23 @@ function Room:generateWallsAndFloors()
 end
 
 function Room:levelUp()
-    self.player.exp = self.player.exp - self.player.expToLevel
-
-    -- next expLevel will be expToLevel * 1.25 rounded to the nearest multiple of 5
-    self.player.expToLevel = 5 * (round((self.player.expToLevel * 1.25) / 5))
-
-    local rand = math.random(1, 3)
-    if rand == 1 then
-        self.player.attackLevel = self.player.attackLevel + 1
-    elseif rand == 2 then
-        self.player.defenseLevel = self.player.defenseLevel + 1
-    else
-        self.player.healthLevel = self.player.healthLevel + 1
-    end
+    local remainingExp = self.player.exp - self.player.expToLevel
+    -- 1.25 more exp needed to level, rounded to the nearest multiple of 5
+    local nextExpToLevel = 5 * (round((self.player.expToLevel * 1.25) / 5))
+    gStateMachine:change('level-up', {
+        attackLevel = self.player.attackLevel,
+        defenseLevel = self.player.defenseLevel,
+        healthLevel = self.player.healthLevel,
+        exp = remainingExp,
+        expToLevel = nextExpToLevel
+    })
 end
 
 function Room:playerKilled(entity)
     self:generateHeartsAround(entity)
     
     self.player.exp = self.player.exp + entity.expReward
-    while self.player.exp > self.player.expToLevel do 
+    if self.player.exp >= self.player.expToLevel then 
         self:levelUp()
     end
 end
@@ -231,7 +228,12 @@ function Room:update(dt)
 
         -- collision between the player and entities in the room
         if not entity.dead and self.player:collides(entity) and not self.player.invulnerable then
-            gSounds['hit-player']:play()
+            if self.player:canDamage(entity.baseAttack) then 
+                gSounds['hit-player']:play()
+            else
+                gSounds['ooof']:play()
+            end
+            
             self.player:damage(entity.baseAttack)
             self.player:goInvulnerable(1.5)
 
@@ -273,7 +275,12 @@ function Room:removePots()
                 local attack = self.player.baseAttack + (self.player.attackLevel - 1)
                 collidedEntity:damage(attack)
                 table.insert(potsToRemove, pot)
-                gSounds['hit-enemy']:play()
+
+                if self.collidedEntity:canDamage(attack) then 
+                    gSounds['hit-enemy']:play()
+                else
+                    gSounds['ooof']:play()
+                end
             end
         end
     end

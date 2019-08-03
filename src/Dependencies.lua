@@ -18,11 +18,16 @@ require 'src/Player'
 require 'src/StateMachine'
 require 'src/Util'
 
+require 'src/gui/Panel'
+require 'src/gui/Menu'
+require 'src/gui/Selection'
+
 require 'src/world/Doorway'
 require 'src/world/Dungeon'
 require 'src/world/Room'
 
 require 'src/states/BaseState'
+require 'src/states/MenuState'
 
 require 'src/states/entity/EntityIdleState'
 require 'src/states/entity/EntityWalkState'
@@ -38,6 +43,7 @@ require 'src/states/entity/player/PlayerPotWalkState'
 require 'src/states/game/GameOverState'
 require 'src/states/game/PlayState'
 require 'src/states/game/StartState'
+require 'src/states/game/LevelUpState'
 
 gTextures = {
     ['tiles'] = love.graphics.newImage('graphics/tilesheet.png'),
@@ -48,7 +54,8 @@ gTextures = {
     ['character-pot-walk'] = love.graphics.newImage('graphics/character_pot_walk.png'),
     ['hearts'] = love.graphics.newImage('graphics/hearts.png'),
     ['switches'] = love.graphics.newImage('graphics/switches.png'),
-    ['entities'] = love.graphics.newImage('graphics/entities.png')
+    ['entities'] = love.graphics.newImage('graphics/entities.png'),
+    ['cursor'] = love.graphics.newImage('graphics/cursor.png')
 }
 
 gFrames = {
@@ -70,6 +77,7 @@ gFonts = {
     ['gothic-large'] = love.graphics.newFont('fonts/GothicPixels.ttf', 32),
     ['zelda'] = love.graphics.newFont('fonts/zelda.otf', 64),
     ['zelda-small'] = love.graphics.newFont('fonts/zelda.otf', 32),
+    ['zelda-xsmall'] = love.graphics.newFont('fonts/zelda.otf', 16),
     ['zelda-tiny'] = love.graphics.newFont('fonts/zelda.otf', 8)
 }
 
@@ -79,5 +87,9 @@ gSounds = {
     ['hit-enemy'] = love.audio.newSource('sounds/hit_enemy.wav'),
     ['hit-player'] = love.audio.newSource('sounds/hit_player.wav'),
     ['door'] = love.audio.newSource('sounds/door.wav'),
-    ['pickup'] = love.audio.newSource('sounds/pickup.wav')
+    ['pickup'] = love.audio.newSource('sounds/pickup.wav'),
+    ['blip'] = love.audio.newSource('sounds/blip.wav'),
+    ['levelup'] = love.audio.newSource('sounds/levelup.wav'),
+    ['victory-music'] = love.audio.newSource('sounds/victory.wav'),
+    ['ooof'] = love.audio.newSource('sounds/ooof.wav'),
 }

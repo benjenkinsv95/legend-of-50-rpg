@@ -34,7 +34,7 @@ function Entity:init(def)
     self.healthLevel = def.healthLevel or 1
     self.attackLevel = def.attackLevel or 1
     self.defenseLevel = def.defenseLevel or 1
-    
+
     self.exp = def.exp
     self.expToLevel = def.expToLevel
     self.expReward = def.expReward
@@ -72,9 +72,16 @@ function Entity:collides(target)
                 self.y + self.height < target.y or self.y > target.y + target.height)
 end
 
+function Entity:damageAmount(baseDmg)
+    return math.max(baseDmg - (self.baseDefense + self.defenseLevel - 1), 0)
+end
+
+function Entity:canDamage(baseDmg)
+    return self:damageAmount(baseDmg) ~= 0
+end
+
 function Entity:damage(baseDmg)
-    local dmg = math.max(baseDmg - (self.baseDefense + self.defenseLevel - 1), 1)
-    self.health = math.max(self.health - dmg, 0)
+    self.health = math.max(self.health - self:damageAmount(baseDmg), 0)
 end
 
 function Entity:goInvulnerable(duration)

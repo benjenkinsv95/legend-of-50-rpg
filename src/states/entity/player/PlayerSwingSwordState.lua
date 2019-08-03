@@ -69,7 +69,13 @@ function PlayerSwingSwordState:update(dt)
             print('damaging enemy by ' .. self.player.baseAttack)
             local attack = self.player.baseAttack + (self.player.attackLevel - 1)
             entity:damage(attack)
-            gSounds['hit-enemy']:play()
+            if entity:canDamage(attack) then 
+                gSounds['hit-enemy']:play()
+            else
+                gSounds['sword']:stop()
+                gSounds['ooof']:play()
+            end
+
             table.insert(self.alreadyDamagedEntity, entity)
         end
     end

@@ -24,9 +24,10 @@ function love.load()
     gStateMachine = StateMachine {
         ['start'] = function() return StartState() end,
         ['play'] = function() return PlayState() end,
+        ['level-up'] = function() return LevelUpState() end,
         ['game-over'] = function() return GameOverState() end
     }
-    gStateMachine:change('start')
+    gStateMachine:change('start') 
 
     gSounds['music']:setLooping(true)
     gSounds['music']:play()

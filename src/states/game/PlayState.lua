@@ -11,7 +11,7 @@ FULL_HEART_FRAME = 5
 HALF_HEART_FRAME = 3
 EMPTY_HEART_FRAME = 1
 
-function PlayState:init()
+function PlayState:enter(def)
     local playerDef = ENTITY_DEFS['player']
     
     self.player = Player {
@@ -19,11 +19,11 @@ function PlayState:init()
         walkSpeed = playerDef.walkSpeed,
         baseAttack = playerDef.baseAttack,
         baseDefense = playerDef.baseDefense,
-        attackLevel = 1,
-        defenseLevel = 1,
-        healthLevel = 1,
-        exp = 0,
-        expToLevel = 10,
+        attackLevel = def.attackLevel or 1,
+        defenseLevel = def.defenseLevel or 1,
+        healthLevel = def.healthLevel or 1,
+        exp = def.exp or 0,
+        expToLevel = def.expToLevel or 10,
         
         x = VIRTUAL_WIDTH / 2 - 8,
         y = VIRTUAL_HEIGHT / 2 - 11,
@@ -37,6 +37,7 @@ function PlayState:init()
         -- rendering and collision offset for spaced sprites
         offsetY = 5
     }
+    self.player:setHealth(self.player:maxHealth())
 
     self.dungeon = Dungeon(self.player)
     self.currentRoom = Room(self.player)
