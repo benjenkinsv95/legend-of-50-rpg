@@ -67,7 +67,8 @@ function Room:generateEntities()
 
             health = entityDef.health or 1,
             baseAttack = entityDef.baseAttack or 1,
-            baseDefense = entityDef.baseDefense or 0
+            baseDefense = entityDef.baseDefense or 0,
+            expReward = entityDef.expReward or 1
         })
 
         self.entities[i].stateMachine = StateMachine {
@@ -180,6 +181,31 @@ function Room:generateWallsAndFloors()
     end
 end
 
+function Room:levelUp()
+    self.player.exp = self.player.exp - self.player.expToLevel
+
+    -- next expLevel will be expToLevel * 1.25 rounded to the nearest multiple of 5
+    self.player.expToLevel = 5 * (round((self.player.expToLevel * 1.25) / 5))
+
+    local rand = math.random(1, 3)
+    if rand == 1 then
+        self.player.attackLevel = self.player.attackLevel + 1
+    elseif rand == 2 then
+        self.player.defenseLevel = self.player.defenseLevel + 1
+    else
+        self.player.healthLevel = self.player.healthLevel + 1
+    end
+end
+
+function Room:playerKilled(entity)
+    self:generateHeartsAround(entity)
+    
+    self.player.exp = self.player.exp + entity.expReward
+    while self.player.exp > self.player.expToLevel do 
+        self:levelUp()
+    end
+end
+
 function Room:update(dt)
     
     -- don't update anything if we are sliding to another room (we have offsets)
@@ -194,8 +220,7 @@ function Room:update(dt)
         if entity.health <= 0 then
             -- if the entity is going to die
             if not entity.dead then
-                self:generateHeartsAround(entity)
-                self.player.attackLevel = self.player.attackLevel + 1
+                self:playerKilled(entity)
             end
             entity.dead = true
             

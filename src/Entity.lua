@@ -30,10 +30,14 @@ function Entity:init(def)
     self.health = def.health
     self.baseAttack = def.baseAttack or 1
     self.baseDefense = def.baseDefense or 0
-    self.attackLevel = def.attackLevel
-    self.defenseLevel = def.defenseLevel
+
+    self.healthLevel = def.healthLevel or 1
+    self.attackLevel = def.attackLevel or 1
+    self.defenseLevel = def.defenseLevel or 1
+    
     self.exp = def.exp
     self.expToLevel = def.expToLevel
+    self.expReward = def.expReward
 
     -- flags for flashing the entity when hit
     self.invulnerable = false
@@ -69,8 +73,7 @@ function Entity:collides(target)
 end
 
 function Entity:damage(baseDmg)
-    print('damaged. baseDmg: ' .. baseDmg .. ', baseDefense: ' .. self.baseDefense .. 'health: ' .. self.health)
-    local dmg = math.max(baseDmg - self.baseDefense, 0)
+    local dmg = math.max(baseDmg - (self.baseDefense + self.defenseLevel - 1), 1)
     self.health = math.max(self.health - dmg, 0)
 end
 

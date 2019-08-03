@@ -101,3 +101,7 @@ end
 function tableContainsValue(tab, value)
     return getIndex(tab, value) ~= nil
 end
+
+function round(value) 
+    return math.floor(value + 0.5)
+end

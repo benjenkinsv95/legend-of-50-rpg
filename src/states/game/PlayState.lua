@@ -7,6 +7,9 @@
 ]]
 
 PlayState = Class{__includes = BaseState}
+FULL_HEART_FRAME = 5
+HALF_HEART_FRAME = 3
+EMPTY_HEART_FRAME = 1
 
 function PlayState:init()
     local playerDef = ENTITY_DEFS['player']
@@ -18,8 +21,9 @@ function PlayState:init()
         baseDefense = playerDef.baseDefense,
         attackLevel = 1,
         defenseLevel = 1,
+        healthLevel = 1,
         exp = 0,
-        expToLevel = 50,
+        expToLevel = 10,
         
         x = VIRTUAL_WIDTH / 2 - 8,
         y = VIRTUAL_HEIGHT / 2 - 11,
@@ -28,7 +32,7 @@ function PlayState:init()
         height = 22,
 
         -- one heart == 2 health
-        health = PLAYER_MAX_HEALTH,
+        health = PLAYER_BASE_MAX_HEALTH,
 
         -- rendering and collision offset for spaced sprites
         offsetY = 5
@@ -64,15 +68,16 @@ function PlayState:render()
 
     -- draw player hearts, top of screen
     local healthLeft = self.player.health
-    local heartFrame = 1
-
-    for i = 1, 3 do
+    local heartFrame = EMPTY_HEART_FRAME
+    
+    local numHearts = 3 + (self.player.healthLevel - 1)
+    for i = 1, numHearts do
         if healthLeft > 1 then
-            heartFrame = 5
+            heartFrame = FULL_HEART_FRAME
         elseif healthLeft == 1 then
-            heartFrame = 3
+            heartFrame = HALF_HEART_FRAME
         else
-            heartFrame = 1
+            heartFrame = EMPTY_HEART_FRAME
         end
 
         love.graphics.draw(gTextures['hearts'], gFrames['hearts'][heartFrame],
