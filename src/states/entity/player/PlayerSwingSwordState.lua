@@ -66,8 +66,9 @@ function PlayerSwingSwordState:update(dt)
     -- check if hitbox collides with any entities in the scene
     for k, entity in pairs(self.dungeon.currentRoom.entities) do
         if entity:collides(self.swordHitbox) and not tableContainsValue(self.alreadyDamagedEntity, entity) then
-            print('damaging enemy')
-            entity:damage(1)
+            print('damaging enemy by ' .. self.player.baseAttack)
+            local attack = self.player.baseAttack + (self.player.attackLevel - 1)
+            entity:damage(attack)
             gSounds['hit-enemy']:play()
             table.insert(self.alreadyDamagedEntity, entity)
         end

@@ -9,9 +9,17 @@
 PlayState = Class{__includes = BaseState}
 
 function PlayState:init()
+    local playerDef = ENTITY_DEFS['player']
+    
     self.player = Player {
-        animations = ENTITY_DEFS['player'].animations,
-        walkSpeed = ENTITY_DEFS['player'].walkSpeed,
+        animations = playerDef.animations,
+        walkSpeed = playerDef.walkSpeed,
+        baseAttack = playerDef.baseAttack,
+        baseDefense = playerDef.baseDefense,
+        attackLevel = 1,
+        defenseLevel = 1,
+        exp = 0,
+        expToLevel = 50,
         
         x = VIRTUAL_WIDTH / 2 - 8,
         y = VIRTUAL_HEIGHT / 2 - 11,
@@ -72,4 +80,16 @@ function PlayState:render()
         
         healthLeft = healthLeft - 2
     end
+
+    -- draw attack & defense
+    love.graphics.setColor(255, 255, 255, 255)
+    love.graphics.setFont(gFonts['small'])
+    love.graphics.printf('ATK-', VIRTUAL_WIDTH - 100, 2, 25, 'left')
+    love.graphics.printf(self.player.attackLevel, VIRTUAL_WIDTH - 100, 2, 25, 'right')
+
+    love.graphics.printf('DEF-', VIRTUAL_WIDTH - 100, 11, 25, 'left')
+    love.graphics.printf(self.player.defenseLevel, VIRTUAL_WIDTH - 100, 11, 25, 'right')
+
+    love.graphics.printf('NEXT LEVEL', VIRTUAL_WIDTH - 60, 2, 55, 'center')
+    love.graphics.printf(self.player.exp .. ' / ' .. self.player.expToLevel, VIRTUAL_WIDTH - 60, 11, 55, 'center')
 end

@@ -28,6 +28,12 @@ function Entity:init(def)
     self.walkSpeed = def.walkSpeed
 
     self.health = def.health
+    self.baseAttack = def.baseAttack or 1
+    self.baseDefense = def.baseDefense or 0
+    self.attackLevel = def.attackLevel
+    self.defenseLevel = def.defenseLevel
+    self.exp = def.exp
+    self.expToLevel = def.expToLevel
 
     -- flags for flashing the entity when hit
     self.invulnerable = false
@@ -62,8 +68,10 @@ function Entity:collides(target)
                 self.y + self.height < target.y or self.y > target.y + target.height)
 end
 
-function Entity:damage(dmg)
-    self.health = self.health - dmg
+function Entity:damage(baseDmg)
+    print('damaged. baseDmg: ' .. baseDmg .. ', baseDefense: ' .. self.baseDefense .. 'health: ' .. self.health)
+    local dmg = math.max(baseDmg - self.baseDefense, 0)
+    self.health = math.max(self.health - dmg, 0)
 end
 
 function Entity:goInvulnerable(duration)

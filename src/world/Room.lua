@@ -50,10 +50,11 @@ function Room:generateEntities()
 
     for i = 1, 10 do
         local type = types[math.random(#types)]
+        local entityDef = ENTITY_DEFS[type]
 
         table.insert(self.entities, Entity {
-            animations = ENTITY_DEFS[type].animations,
-            walkSpeed = ENTITY_DEFS[type].walkSpeed or 20,
+            animations = entityDef.animations,
+            walkSpeed = entityDef.walkSpeed or 20,
 
             -- ensure X and Y are within bounds of the map
             x = math.random(MAP_RENDER_OFFSET_X + TILE_SIZE,
@@ -64,7 +65,9 @@ function Room:generateEntities()
             width = 16,
             height = 16,
 
-            health = ENTITY_DEFS[type].health or 1
+            health = entityDef.health or 1,
+            baseAttack = entityDef.baseAttack or 1,
+            baseDefense = entityDef.baseDefense or 0
         })
 
         self.entities[i].stateMachine = StateMachine {
@@ -192,6 +195,7 @@ function Room:update(dt)
             -- if the entity is going to die
             if not entity.dead then
                 self:generateHeartsAround(entity)
+                self.player.attackLevel = self.player.attackLevel + 1
             end
             entity.dead = true
             
@@ -203,7 +207,7 @@ function Room:update(dt)
         -- collision between the player and entities in the room
         if not entity.dead and self.player:collides(entity) and not self.player.invulnerable then
             gSounds['hit-player']:play()
-            self.player:damage(1)
+            self.player:damage(entity.baseAttack)
             self.player:goInvulnerable(1.5)
 
             if self.player.health == 0 then
@@ -241,7 +245,8 @@ function Room:removePots()
                 gSounds['hit-enemy']:play()
             elseif collidedEntity ~= nil then 
                 print("Collided enemy")
-                collidedEntity:damage(1)
+                local attack = self.player.baseAttack + (self.player.attackLevel - 1)
+                collidedEntity:damage(attack)
                 table.insert(potsToRemove, pot)
                 gSounds['hit-enemy']:play()
             end

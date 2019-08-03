@@ -69,7 +69,8 @@ gFonts = {
     ['gothic-medium'] = love.graphics.newFont('fonts/GothicPixels.ttf', 16),
     ['gothic-large'] = love.graphics.newFont('fonts/GothicPixels.ttf', 32),
     ['zelda'] = love.graphics.newFont('fonts/zelda.otf', 64),
-    ['zelda-small'] = love.graphics.newFont('fonts/zelda.otf', 32)
+    ['zelda-small'] = love.graphics.newFont('fonts/zelda.otf', 32),
+    ['zelda-tiny'] = love.graphics.newFont('fonts/zelda.otf', 8)
 }
 
 gSounds = {
