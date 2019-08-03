@@ -47,6 +47,8 @@ function PlayerSwingSwordState:init(player, dungeon)
 
     -- sword-left, sword-up, etc
     self.player:changeAnimation('sword-' .. self.player.direction)
+
+    self.alreadyDamagedEntity = {}
 end
 
 function PlayerSwingSwordState:enter(params)
@@ -63,9 +65,11 @@ function PlayerSwingSwordState:update(dt)
     
     -- check if hitbox collides with any entities in the scene
     for k, entity in pairs(self.dungeon.currentRoom.entities) do
-        if entity:collides(self.swordHitbox) then
+        if entity:collides(self.swordHitbox) and not tableContainsValue(self.alreadyDamagedEntity, entity) then
+            print('damaging enemy')
             entity:damage(1)
             gSounds['hit-enemy']:play()
+            table.insert(self.alreadyDamagedEntity, entity)
         end
     end
 
