@@ -276,7 +276,7 @@ function Room:removePots()
                 collidedEntity:damage(attack)
                 table.insert(potsToRemove, pot)
 
-                if self.collidedEntity:canDamage(attack) then 
+                if collidedEntity:canDamage(attack) then 
                     gSounds['hit-enemy']:play()
                 else
                     gSounds['ooof']:play()
