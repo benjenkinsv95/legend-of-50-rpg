@@ -31,10 +31,6 @@ function Player:render()
     -- love.graphics.setColor(255, 255, 255, 255)
 end
 
-function Player:maxHealth()
-    return PLAYER_BASE_MAX_HEALTH + ((self.healthLevel - 1) * 2)
-end
-
 function Player:setHealth(health)
     self.health = clamp(health, 0, self:maxHealth())
 end

@@ -21,6 +21,7 @@ require 'src/Util'
 require 'src/gui/Panel'
 require 'src/gui/Menu'
 require 'src/gui/Selection'
+require 'src/gui/ProgressBar'
 
 require 'src/world/Doorway'
 require 'src/world/Dungeon'

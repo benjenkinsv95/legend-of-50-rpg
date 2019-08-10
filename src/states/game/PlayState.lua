@@ -32,7 +32,8 @@ function PlayState:enter(def)
         height = 22,
 
         -- one heart == 2 health
-        health = PLAYER_BASE_MAX_HEALTH,
+        baseHealth = PLAYER_BASE_MAX_HEALTH,
+        hasHealthbar = playerDef.hasHealthbar,
 
         -- rendering and collision offset for spaced sprites
         offsetY = 5

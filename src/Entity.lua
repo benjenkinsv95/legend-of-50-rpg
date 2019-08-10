@@ -27,9 +27,11 @@ function Entity:init(def)
 
     self.walkSpeed = def.walkSpeed
 
-    self.health = def.health
+    
+    self.baseHealth = def.baseHealth or 1
     self.baseAttack = def.baseAttack or 1
     self.baseDefense = def.baseDefense or 0
+    self.health = self.baseHealth 
 
     self.healthLevel = def.healthLevel or 1
     self.attackLevel = def.attackLevel or 1
@@ -48,6 +50,18 @@ function Entity:init(def)
     self.flashTimer = 0
 
     self.dead = false
+
+    self.hasHealthbar = def.hasHealthbar == nil and true or def.hasHealthbar
+    self.healthBar = ProgressBar {
+        x = self.x - self.offsetX,
+        y = self.y + self.height + 2,
+        width = self.width,
+        height = 4,
+        color = {r = 32, g = 189, b = 32},
+        backgroundColor = {r = 189, g = 32, b = 32},
+        value = self.health,
+        max = self:maxHealth()
+    }
 end
 
 function Entity:createAnimations(animations)
@@ -81,7 +95,9 @@ function Entity:canDamage(baseDmg)
 end
 
 function Entity:damage(baseDmg)
+    local prevHealth = self.health
     self.health = math.max(self.health - self:damageAmount(baseDmg), 0)
+    print('Damaging: ' .. prevHealth .. ' - ' .. self:damageAmount(baseDmg) .. ' = '.. self.health)
 end
 
 function Entity:goInvulnerable(duration)
@@ -95,6 +111,10 @@ end
 
 function Entity:changeAnimation(name)
     self.currentAnimation = self.animations[name]
+end
+
+function Entity:maxHealth()
+    return self.baseHealth + ((self.healthLevel - 1) * 2)
 end
 
 function Entity:update(dt)
@@ -115,6 +135,11 @@ function Entity:update(dt)
     if self.currentAnimation then
         self.currentAnimation:update(dt)
     end
+
+    self.healthBar.x = self.x - self.offsetX
+    self.healthBar.y = self.y + self.height + 2
+    self.healthBar.value = self.health
+    self.healthBar.max = self:maxHealth()
 end
 
 function Entity:processAI(params, dt)
@@ -131,6 +156,9 @@ function Entity:render(adjacentOffsetX, adjacentOffsetY)
 
     self.x, self.y = self.x + (adjacentOffsetX or 0), self.y + (adjacentOffsetY or 0)
     self.stateMachine:render()
+    if self.hasHealthbar then
+        self.healthBar:render()
+    end
     love.graphics.setColor(255, 255, 255, 255)
     self.x, self.y = self.x - (adjacentOffsetX or 0), self.y - (adjacentOffsetY or 0)
 end

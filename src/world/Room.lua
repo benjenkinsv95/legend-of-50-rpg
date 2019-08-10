@@ -65,10 +65,11 @@ function Room:generateEntities()
             width = 16,
             height = 16,
 
-            health = entityDef.health or 1,
+            baseHealth = entityDef.baseHealth or 1,
             baseAttack = entityDef.baseAttack or 1,
             baseDefense = entityDef.baseDefense or 0,
-            expReward = entityDef.expReward or 1
+            expReward = entityDef.expReward or 1,
+            hasHealthbar = entityDef.hasHealthbar
         })
 
         self.entities[i].stateMachine = StateMachine {
