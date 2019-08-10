@@ -12,6 +12,9 @@ function Room:init(player)
     self.width = MAP_WIDTH
     self.height = MAP_HEIGHT
 
+    -- reference to player for collisions, etc.
+    self.player = player
+
     self.tiles = {}
     self:generateWallsAndFloors()
 
@@ -30,8 +33,7 @@ function Room:init(player)
     table.insert(self.doorways, Doorway('left', false, self))
     table.insert(self.doorways, Doorway('right', false, self))
 
-    -- reference to player for collisions, etc.
-    self.player = player
+    
 
     -- used for centering the dungeon rendering
     self.renderOffsetX = MAP_RENDER_OFFSET_X
@@ -42,17 +44,40 @@ function Room:init(player)
     self.adjacentOffsetY = 0
 end
 
+function Room:getTypesFor(level, expRemaining)
+    local types = {}
+    for type, entityDef in pairs(ENTITY_DEFS) do
+        print_r(type)
+        print_r(entityDef)
+
+        if entityDef['firstLevel'] and entityDef['firstLevel'] <= level and entityDef['expReward'] <= expRemaining then
+            table.insert(types, type)
+        end
+
+    end
+
+    if #types == 0 then
+        table.insert(types, 'slime')
+    end
+    return types
+end
+
 --[[
     Randomly creates an assortment of enemies for the player to fight.
 ]]
 function Room:generateEntities()
-    local types = {'skeleton', 'slime', 'bat', 'ghost', 'spider'}
 
-    for i = 1, 5 do
+    
+    local EXPERIENCE_PERCENT = 0.65
+    local minimumExpToGenerate = math.ceil(EXPERIENCE_PERCENT * self.player.expToLevel)
+    local expGenerated = 0
+    local i = 1
+
+    while expGenerated < minimumExpToGenerate do
+        local types = self:getTypesFor(self.player:getLevel(), minimumExpToGenerate - expGenerated)
         local type = types[math.random(#types)]
         local entityDef = ENTITY_DEFS[type]
-
-        table.insert(self.entities, Entity {
+        local entity = Entity {
             animations = entityDef.animations,
             walkSpeed = entityDef.walkSpeed or 20,
 
@@ -69,15 +94,20 @@ function Room:generateEntities()
             baseAttack = entityDef.baseAttack or 1,
             baseDefense = entityDef.baseDefense or 0,
             expReward = entityDef.expReward or 1,
-            hasHealthbar = entityDef.hasHealthbar
-        })
-
-        self.entities[i].stateMachine = StateMachine {
-            ['walk'] = function() return EntityWalkState(self.entities[i]) end,
-            ['idle'] = function() return EntityIdleState(self.entities[i]) end
+            hasHealthbar = entityDef.hasHealthbar,
+            minimumDamageInflicted = entityDef.minimumDamageInflicted or 0,
         }
 
-        self.entities[i]:changeState('walk')
+        table.insert(self.entities, entity)
+
+        entity.stateMachine = StateMachine {
+            ['walk'] = function() return EntityWalkState(entity) end,
+            ['idle'] = function() return EntityIdleState(entity) end
+        }
+
+        entity:changeState('walk')
+        expGenerated = expGenerated + entityDef.expReward 
+        i = i + 1
     end
 end
 

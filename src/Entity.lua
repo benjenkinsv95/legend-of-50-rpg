@@ -49,6 +49,9 @@ function Entity:init(def)
     -- timer for turning transparency on and off, flashing
     self.flashTimer = 0
 
+    -- how much damage should be inflicted if defense is too high
+    self.minimumDamageInflicted = def.minimumDamageInflicted or 0
+
     self.dead = false
 
     self.hasHealthbar = def.hasHealthbar == nil and true or def.hasHealthbar
@@ -87,7 +90,7 @@ function Entity:collides(target)
 end
 
 function Entity:damageAmount(baseDmg)
-    return math.max(baseDmg - (self.baseDefense + self.defenseLevel - 1), 0)
+    return math.max(baseDmg - (self.baseDefense + self.defenseLevel - 1), 0) + self.minimumDamageInflicted
 end
 
 function Entity:canDamage(baseDmg)

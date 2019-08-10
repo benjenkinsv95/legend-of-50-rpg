@@ -34,3 +34,7 @@ end
 function Player:setHealth(health)
     self.health = clamp(health, 0, self:maxHealth())
 end
+
+function Player:getLevel()
+    return self.attackLevel + self.defenseLevel + self.healthLevel - 2
+end

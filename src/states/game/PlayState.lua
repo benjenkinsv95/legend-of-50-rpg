@@ -24,6 +24,7 @@ function PlayState:enter(def)
         healthLevel = def.healthLevel or 1,
         exp = def.exp or 0,
         expToLevel = def.expToLevel or 10,
+        minimumDamageInflicted = playerDef.minimumDamageInflicted,
         
         x = VIRTUAL_WIDTH / 2 - 8,
         y = VIRTUAL_HEIGHT / 2 - 11,

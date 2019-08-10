@@ -17,8 +17,6 @@ function EntityIdleState:init(entity, dungeon)
     -- used for AI waiting
     self.waitDuration = 0
     self.waitTimer = 0
-
-    
 end
 
 --[[
