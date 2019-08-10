@@ -48,7 +48,7 @@ end
 function Room:generateEntities()
     local types = {'skeleton', 'slime', 'bat', 'ghost', 'spider'}
 
-    for i = 1, 10 do
+    for i = 1, 5 do
         local type = types[math.random(#types)]
         local entityDef = ENTITY_DEFS[type]
 
@@ -223,7 +223,7 @@ function Room:update(dt)
             entity.dead = true
             
         elseif not entity.dead then
-            entity:processAI({room = self}, dt)
+            entity:processAI({room = self, player = self.player}, dt)
             entity:update(dt)
         end
 

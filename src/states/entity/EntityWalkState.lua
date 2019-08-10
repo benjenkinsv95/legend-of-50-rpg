@@ -20,6 +20,15 @@ function EntityWalkState:init(entity, dungeon)
 
     -- keeps track of whether we just hit a wall
     self.bumped = false
+
+    -- An entity can target the player, if so, they will target for numTargetedMoves in a row
+    self.numTargetedMoves = 0
+
+    -- There is a timer for how often the player should flash red
+    self.targetedFlashTimer = 0
+
+    -- If the color should be red or normal. This property alternates.
+    self.targetedFlashColor = true
 end
 
 function EntityWalkState:collidedSolidObjects()
@@ -41,6 +50,7 @@ end
 
 
 function EntityWalkState:update(dt)
+    
 
     -- Keep track of location in case we hit a solid object
     local prevX = self.entity.x
@@ -97,8 +107,36 @@ function EntityWalkState:update(dt)
     end
 end
 
+
+function EntityWalkState:targetPlayerMove(player)
+    local moves = {}
+    local horizontalMove = self.entity.x < player.x 
+        and { direction = 'right', duration = math.abs(self.entity.x - player.x) / self.entity.walkSpeed }
+        or { direction = 'left', duration = math.abs(self.entity.x - player.x) / self.entity.walkSpeed }
+    local verticalMove = self.entity.y < player.y
+        and { direction = 'down', duration = math.abs(self.entity.y - player.y) / self.entity.walkSpeed }
+        or { direction = 'up', duration = math.abs(self.entity.y - player.y) / self.entity.walkSpeed }
+    
+    local move = horizontalMove.duration > verticalMove.duration and horizontalMove or verticalMove
+    self.entity.direction = move.direction
+    self.moveDuration = math.random(math.floor(move.duration))
+    self.entity:changeAnimation('walk-' .. tostring(self.entity.direction))
+    self.numTargetedMoves = self.numTargetedMoves - 1
+
+    if self.numTargetedMoves <= 0 then
+        self.entity.walkSpeed = self.entity.walkSpeed / 1.5
+    end
+end
+
 function EntityWalkState:processAI(params, dt)
+    if self.numTargetedMoves > 0 then
+        self.targetedFlashTimer = self.targetedFlashTimer + dt
+    else
+        self.targetedFlashTimer = 0
+    end
+
     local room = params.room
+    local player = params.player
     local directions = {'left', 'right', 'up', 'down'}
 
     if self.moveDuration == 0 or self.bumped then
@@ -111,11 +149,18 @@ function EntityWalkState:processAI(params, dt)
         self.movementTimer = 0
 
         -- chance to go idle
-        if math.random(3) == 1 then
+        local rand = math.random(5)
+        if self.numTargetedMoves > 0 then
+            self:targetPlayerMove(player)
+        elseif rand == 1 then
             self.entity:changeState('idle')
+        elseif rand <= 3 then
+            self.numTargetedMoves = math.random(5)
+            self.entity.walkSpeed = self.entity.walkSpeed * 1.5
+            self:targetPlayerMove(player)
         else
-            self.moveDuration = math.random(5)
             self.entity.direction = directions[math.random(#directions)]
+            self.moveDuration = math.random(5)
             self.entity:changeAnimation('walk-' .. tostring(self.entity.direction))
         end
     end
@@ -125,6 +170,18 @@ end
 
 function EntityWalkState:render()
     local anim = self.entity.currentAnimation
+    if self.numTargetedMoves > 0 then
+        if self.targetedFlashTimer < 1 then
+            if self.targetedFlashColor then 
+                love.graphics.setColor(255, 0, 0, 192)  
+            end
+        else 
+            self.targetedFlashTimer = 0
+            self.targetedFlashColor = not self.targetedFlashColor
+        end
+        
+    end
+
     love.graphics.draw(gTextures[anim.texture], gFrames[anim.texture][anim:getCurrentFrame()],
         math.floor(self.entity.x - self.entity.offsetX), math.floor(self.entity.y - self.entity.offsetY))
     
